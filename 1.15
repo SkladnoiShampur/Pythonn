@@ -1,0 +1,14 @@
+import math
+
+a=int(input())
+b=int(input())
+c=int(input())
+
+la = (((b*c*abs((b+c)**2-a**2)))**0.5)/(b+c)
+lb = (((a*c*abs((a+c)**2-b**2)))**0.5)/(a+c)
+lc = (((b*a*abs((b+a)**2-c**2)))**0.5)/(b+a)
+
+
+print("la =",round(la,2))
+print("lb =",round(lb,2))
+print("lc =",round(lc,2))
