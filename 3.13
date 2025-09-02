@@ -1,0 +1,10 @@
+import math
+
+b=[]
+for i in range (10):
+  c=float(input())
+  b.append(c)
+print(b)
+b.sort
+r=b[9]-b[0]
+print(r)
