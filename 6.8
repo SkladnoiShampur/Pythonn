@@ -1,0 +1,34 @@
+def fill_array_a():
+    arr = [[0] * 10 for _ in range(10)]
+    for i in range(10):
+        arr[i][i] = i
+    return arr
+
+def fill_array_b():
+    arr = [[0] * 10 for _ in range(10)]
+    for i in range(10):
+        for j in range(10):
+            arr[i][j] = i * 10 + j + 1
+    return arr
+
+def fill_array_c():
+    arr = [[0] * 10 for _ in range(10)]
+    for i in range(10):
+        arr[i][i] = 1
+    return arr
+
+array_a = fill_array_a()
+array_b = fill_array_b()
+array_c = fill_array_c()
+
+for row in array_a:
+    print(row)
+print('\n')
+
+for row in array_b:
+    print(row)
+print('\n')
+
+for row in array_c:
+    print(row)
+    
