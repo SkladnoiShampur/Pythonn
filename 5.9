@@ -1,0 +1,16 @@
+def daysInmonth(m,l):
+  if m in [4, 6, 9, 11]:
+    return 30
+  elif m == 2:
+    if l == 1:
+      return 28
+    else:
+      return 29
+  else:
+    return 31
+    
+m = int(input("Введите номер месяца: "))
+l = int(input("Введите 1, если год високосный, и 0 в противном случае: "))
+
+res = daysInmonth(m,l)
+print("Количество дней в году: ", res)
