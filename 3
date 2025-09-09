@@ -1,0 +1,9 @@
+def calculate_difference(numbers):
+    min_num = min(numbers)
+    max_num = max(numbers)
+    return max_num - min_num
+
+numbers = list(map(float, input("Введите 10 вещественных чисел через пробел: ").split()))
+
+result = calculate_difference(numbers)
+print(result)
