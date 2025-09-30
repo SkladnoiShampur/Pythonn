@@ -1,15 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Определяем интервал x
-x = np.linspace(0.1, 10, 400) # Больше точек для более гладких графиков
+x = np.linspace(0.1, 10, 400) 
 
-# Вычисляем y
-y1 = np.log(x)   # Натуральный логарифм (ln)
-y2 = np.exp(x)   # e^x
+y1 = np.log(x)   
+y2 = np.exp(x)   
 
-# ----- Первый график: оба графика на одной плоскости -----
-plt.figure(figsize=(10, 6)) # Размер графика
+## График №1
+
+plt.figure(figsize=(10, 6))
 
 plt.plot(x, y1, label='y = log(x)')
 plt.plot(x, y2, label='y = e^x')
@@ -18,35 +17,36 @@ plt.title('Графики функций y = log(x) и y = e^x')
 plt.xlabel('x')
 plt.ylabel('y')
 
-plt.grid(True)  # Добавляем сетку
-plt.legend()    # Показываем легенду
+plt.grid(True)  
+plt.legend()    
 
-plt.xlim(0, 10.5)  # Пределы по оси x чтобы было видно 0.1
-plt.ylim(-3, 20) # Пределы по оси y, чтобы вместить оба графика
+plt.xlim(0, 10.5)  
+plt.ylim(-3, 20) 
 plt.show()
 
-# ----- Второй график: отдельные графики с линией и точками -----
+## Второй график
+## Первая кратинка
 
-# График y = log(x) с линией и точками
 plt.figure(figsize=(8, 5))
 plt.plot(x, y1, linestyle='-', marker='.', markevery=3, label='y = log(x)')
-plt.title('График y = log(x) с линией и точками')
+plt.title('График y = log(x)')
 plt.xlabel('x')
 plt.ylabel('y')
-plt.grid(True)
+plt.grid()
 plt.legend()
-plt.xlim(0, 10.5) # Пределы по оси x чтобы было видно 0.1
-plt.ylim(-3, 3)  # чтобы график был посередине
+plt.xlim(0, 10.5) 
+plt.ylim(-3, 3) 
 plt.show()
 
-# График y = e^x  с линией и точками, начиная не с начала графика
+##Вторая картинка
+
 plt.figure(figsize=(8, 5))
 plt.plot(x[3:], y2[3:], linestyle='-', marker='.', markevery=3, label='y = e^x')
-plt.title('График y = e^x  с линией и точками (с отступом)')
+plt.title('График y = e^x)')
 plt.xlabel('x')
 plt.ylabel('y')
-plt.grid(True)
+plt.grid()
 plt.legend()
-plt.xlim(0, 10.5) # Пределы по оси x чтобы было видно 0.1
-plt.ylim(0, 100) # чтобы график был посередине
+plt.xlim(0, 10.5)
+plt.ylim(0, 100)
 plt.show()
