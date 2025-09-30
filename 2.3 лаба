@@ -8,39 +8,55 @@ y2 = np.exp(x)
 
 plt.figure(figsize=(12, 8))
 
+plt.plot(x, y1, label='y = log(x)')
+plt.plot(x, y2, label='y = e^x')
+
+plt.title('Графики функций y = log(x) и y = e^x')
+plt.xlabel('x')
+plt.ylabel('y')
+
+plt.grid()  
+plt.legend()    
+
+plt.xlim(0, 10.5)  
+plt.ylim(-3, 20) 
+plt.show()
+
 # Первая строка: log(x)
+
 plt.subplot(2, 3, 1)
-plt.plot(x, y1)
-plt.title('log(x), None')
+plt.plot(x, y1, marker='.', markevery=5)
+plt.title('log(x), шаг=5')
 plt.ylim(-3, 3)
 
 plt.subplot(2, 3, 2)
-plt.plot(x, y1, marker='.', markevery=10)
-plt.title('log(x), markevery=10')
+plt.plot(x, y1, marker='.', markevery=25)
+plt.title('log(x), шаг=25')
 plt.ylim(-3, 3)
 
 plt.subplot(2, 3, 3)
-plt.plot(x, y1, marker='.', markevery=30)
-plt.title('log(x), markevery=30')
+plt.plot(x, y1, marker='.', markevery=50)
+plt.title('log(x), шаг=50')
 plt.ylim(-3, 3)
 
 # Вторая строка: exp(x)
-x_exp = x[3:] # чтобы убрать совсем маленькие значения, иначе график нечитаем
+
+x_exp = x[3:]
 y2 = y2[3:]
 
 plt.subplot(2, 3, 4)
-plt.plot(x_exp, y2)
-plt.title('exp(x), None')
+plt.plot(x_exp, y2, marker='.', markevery=5)
+plt.title('exp(x), шаг=5')
 plt.ylim(0, 100)
 
 plt.subplot(2, 3, 5)
-plt.plot(x_exp, y2, marker='.', markevery=10)
-plt.title('exp(x), markevery=10')
+plt.plot(x_exp, y2, marker='.', markevery=25)
+plt.title('exp(x), шаг=25')
 plt.ylim(0, 100)
 
 plt.subplot(2, 3, 6)
-plt.plot(x_exp, y2, marker='.', markevery=30)
-plt.title('exp(x), markevery=30')
+plt.plot(x_exp, y2, marker='.', markevery=50)
+plt.title('exp(x), шаг=50')
 plt.ylim(0, 100)
 
 plt.tight_layout()
