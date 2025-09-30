@@ -1,0 +1,51 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Определение параметров синусоиды
+x = np.linspace(0, 4, 400)  # Изменен диапазон x от 0 до 4
+amplitude = 1
+frequency = 1
+y = amplitude * np.sin(2 * np.pi * frequency * x)
+
+# Создание графика с 6 подграфиками
+plt.figure(figsize=(12, 8))
+
+# Подграфик 1: Без маркеров
+plt.subplot(3, 2, 1)
+plt.plot(x, y)
+plt.title('None')
+plt.ylim(-1.2, 1.2)
+
+# Подграфик 2: Маркеры через каждый 10-й элемент
+plt.subplot(3, 2, 2)
+plt.plot(x, y, marker='.', markevery=10)
+plt.title('(10, 30)')  # Исправлено название графика
+plt.ylim(-1.2, 1.2)
+
+# Подграфик 3: Маркеры через каждый 100-й элемент
+plt.subplot(3, 2, 3)
+plt.plot(x, y, marker='.', markevery=30) # Исправлена опечатка
+plt.title('(100, 30)')  # Исправлено название графика
+plt.ylim(-1.2, 1.2)
+
+# Подграфик 4: Срез массива с шагом 15
+plt.subplot(3, 2, 4)
+plt.plot(x[100:400:15], y[100:400:15], marker='.')
+plt.title('slice(100, 400, 15)')
+plt.ylim(-1.2, 1.2)
+
+# Подграфик 5: Маркеры только в определенных местах
+plt.subplot(3, 2, 5)
+plt.plot(x[[0, 100, 200, 300]], y[[0, 100, 200, 300]], marker='.')
+plt.title('[0, 100, 200, 300]')
+plt.ylim(-1.2, 1.2)
+
+# Подграфик 6: Маркеры только в определенных местах
+plt.subplot(3, 2, 6)
+plt.plot(x[[10, 50, 100]], y[[10, 50, 100]], marker='.')
+plt.title('[10, 50, 100]')
+plt.ylim(-1.2, 1.2)
+
+
+plt.tight_layout()
+plt.show()
