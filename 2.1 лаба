@@ -1,0 +1,102 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0.1, 10, 400) 
+
+y1 = np.log(x)   
+y2 = np.exp(x)   
+
+## График №1
+
+plt.figure(figsize=(10, 6))
+
+plt.plot(x, y1, label='y = log(x)')
+plt.plot(x, y2, label='y = e^x')
+
+plt.title('Графики функций y = log(x) и y = e^x')
+plt.xlabel('x')
+plt.ylabel('y')
+
+plt.grid(True)  
+plt.legend()    
+
+plt.xlim(0, 10.5)  
+plt.ylim(-3, 20) 
+plt.show()
+
+## Второй график
+## Первая кратинка
+
+plt.figure(figsize=(12, 8))  # Увеличиваем размер фигуры для размещения нескольких графиков
+
+plt.subplot(3, 2, 1)  # 3 строки, 2 столбца, 1-й график
+plt.plot(x, y1, linestyle='-', marker='.', markevery=3, label='y = log(x)')
+plt.title('y = log(x), markevery=3')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.grid()
+plt.legend()
+plt.xlim(0, 10.5) 
+plt.ylim(-3, 3) 
+
+##Вторая картинка (log(x), markevery=10)
+
+plt.subplot(3, 2, 2)  # 3 строки, 2 столбца, 2-й график
+plt.plot(x, y1, linestyle='-', marker='o', markevery=10, label='y = log(x)')
+plt.title('y = log(x), markevery=10')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.grid()
+plt.legend()
+plt.xlim(0, 10.5) 
+plt.ylim(-3, 3) 
+
+##Третья картинка (exp(x), markevery=3)
+
+plt.subplot(3, 2, 3)  # 3 строки, 2 столбца, 3-й график
+plt.plot(x[3:], y2[3:], linestyle='-', marker='.', markevery=3, label='y = e^x')
+plt.title('y = e^x, markevery=3')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.grid()
+plt.legend()
+plt.xlim(0, 10.5)
+plt.ylim(0, 100)
+
+##Четвертая картинка (exp(x), markevery=10)
+
+plt.subplot(3, 2, 4)  # 3 строки, 2 столбца, 4-й график
+plt.plot(x[3:], y2[3:], linestyle='-', marker='o', markevery=10, label='y = e^x')
+plt.title('y = e^x, markevery=10')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.grid()
+plt.legend()
+plt.xlim(0, 10.5)
+plt.ylim(0, 100)
+
+# Пятая картинка (exp(x), markevery=20)
+
+plt.subplot(3, 2, 5)  # 3 строки, 2 столбца, 5-й график
+plt.plot(x[3:], y2[3:], linestyle='-', marker='*', markevery=20, label='y = e^x')
+plt.title('y = e^x, markevery=20')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.grid()
+plt.legend()
+plt.xlim(0, 10.5)
+plt.ylim(0, 100)
+
+# Шестая картинка (log(x), markevery=20)
+plt.subplot(3, 2, 6)  # 3 строки, 2 столбца, 6-й график
+plt.plot(x, y1, linestyle='-', marker='*', markevery=20, label='y = log(x)')
+plt.title('y = log(x), markevery=20')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.grid()
+plt.legend()
+plt.xlim(0, 10.5)
+plt.ylim(-3, 3)
+
+plt.tight_layout()  # Предотвращает перекрывание графиков
+plt.show()
