@@ -41,8 +41,9 @@ plt.ylim(-3, 3)
 
 # Вторая строка: exp(x)
 
-x_exp = x[3:]
-y2 = y2[3:]
+start_index = 15  
+x_exp = x[start_index:]
+y2 = y2[start_index:]
 
 plt.subplot(2, 3, 4)
 plt.plot(x_exp, y2, marker='.', markevery=5)
