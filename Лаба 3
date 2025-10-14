@@ -21,8 +21,8 @@ plt.show()
 # 2. Круговая диаграмма распределения источников дохода
 plt.figure(figsize=(8, 8))
 
-explode = [0.1, 0, 0, 0]
-plt.pie(income_percentages, labels=income_sources, autopct='%1.1f%%', startangle=90, explode=explode)
+explode = [0.1, 0.1, 0.1, 0.1]
+plt.pie(income_percentages, labels=income_sources, autopct='%1.1f%%', shadow = True, startangle=90, explode=explode)
 plt.title("Распределение источников дохода")
 plt.show()
 
@@ -34,7 +34,8 @@ plt.figure(figsize=(8, 6))
 total_orders = sum(orders)
 order_percentages = [order / total_orders * 100 for order in orders]
 
-plt.bar(months[:4], order_percentages)
+plt.bar(months[:4], order_percentages, width = 0.4)
+plt.bar(months[:4], [100,100,100,100], width = 0.2)
 plt.xlabel("Месяц")
 plt.ylabel("Доля заказов (%)")
 plt.title("Доля заказов по месяцам")
