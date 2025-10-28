@@ -1,0 +1,47 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+
+# Данные из таблицы
+data = np.array([
+    [1.5, 0.5, 2.1, 0.8, 1.2, 0.0, 3.5],
+    [0.4, 1.8, 0.0, 2.2, 0.9, 1.1, 0.0],
+    [0.9, 0.2, 1.5, 0.0, 2.8, 0.4, 1.7]
+])
+
+# Подписи к строкам и столбцам
+row_labels = ['Яблоки', 'Груши', 'Сливы']
+col_labels = ['Фермер Джо', 'Бр. Урланд', 'Сады Смита', 'Агрифан', 'Органикультура', 'Букхоалс Лтд.', 'КомВайз Корп.']
+
+# Создаем heatmap
+fig, ax = plt.subplots()
+im = ax.imshow(data, cmap="YlGn") # Используем цветовую гамму от желтого к зеленому
+
+# Добавляем подписи к осям
+ax.set_xticks(np.arange(len(col_labels)))
+ax.set_yticks(np.arange(len(row_labels)))
+
+ax.set_xticklabels(col_labels)
+ax.set_yticklabels(row_labels)
+
+# Поворачиваем подписи на оси X для лучшей читаемости
+plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+
+# Добавляем значения в ячейки
+for i in range(len(row_labels)):
+    for j in range(len(col_labels)):
+        text = ax.text(j, i, data[i, j], ha="center", va="center", color="w") # цвет текста - белый
+
+# Добавляем название графика
+ax.set_title("Урожай местных фермеров (тонн/год) - Фрукты")
+
+# Создаем цветовую шкалу (colorbar)
+cbar = ax.figure.colorbar(im, ax=ax)
+
+# Подпись к цветовой шкале
+cbar.ax.set_ylabel("Тонн/год", rotation=-90, va="bottom")
+
+
+# Отображаем график
+plt.tight_layout() # Чтобы все элементы поместились на графике
+plt.show()
