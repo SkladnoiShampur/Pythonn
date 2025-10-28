@@ -1,98 +1,91 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+from matplotlib.gridspec import GridSpec
 
-# 1. Степенные функции
+fig = plt.figure(figsize=(15, 10)) 
+gs = GridSpec(4, 3, figure=fig)
+
+#1
 x1 = np.linspace(0, 8, 100)
-y1_1 = x1**(1/2)
-y1_2 = x1**(1/3)
+y1 = x1**(1/2)
 
-# 2. Обратные тригонометрические функции
-x2 = np.linspace(-2, 2, 100)
-y2_1 = np.arcsin(x2/2)
-y2_2 = np.arctan(x2)
+#2
+x2 = np.linspace(0, 8, 100)
+y2 = x2**(1/3)
 
-# 3. Комбинированные функции
-x3 = np.linspace(-10, 10, 100)
-y3_1 = x3 * np.sin(x3)
-y3_2 = x3 * np.cos(x3)
+#3
+x3 = np.linspace(-2, 2, 100)
+y3 = np.arcsin(x3/2)
 
-# 4. Модульные функции
-x4 = np.linspace(-3, 5, 100)
-y4_1 = np.abs(x4 - 2)
-y4_2 = np.abs(x4**2 - 4)
+#4
+x4 = np.linspace(-2, 2, 100)
+y4 = np.arctan(x4)
 
-# 5. Еще одна функция (для разнообразия) - Парабола
-x5 = np.linspace(-5, 5, 100)
-y5 = x5**2
+#5
+x5 = np.linspace(-10, 10, 100)
+y5 = x5 * np.sin(x5)
 
-# 6. Экспоненциальные функции
-x6 = np.linspace(-3, 3, 100)
-y6_1 = np.exp(x6)
-y6_2 = np.exp(-x6)
+#6
+x6 = np.linspace(-10, 10, 100)
+y6 = x6 * np.cos(x6)
 
-# 7. Логарифмические функции
-x7 = np.linspace(0.1, 5, 100) # Избегаем log(0)
-y7_1 = np.log(x7)
-y7_2 = np.log10(x7)
+#7
+x7 = np.linspace(-3, 5, 100)
+y7 = np.abs(x7 - 2)
 
-# 8. Гиперболические функции
-x8 = np.linspace(-3, 3, 100)
-y8_1 = np.sinh(x8)
-y8_2 = np.cosh(x8)
+#8
+x8 = np.linspace(-3, 5, 100)
+y8 = np.abs(x8**2 - 4)
 
-# Создание рисунка и сетки подграфиков (2x4)
-fig, axes = plt.subplots(nrows=2, ncols=4, figsize=(16, 8)) # 2 строки, 4 столбца
+ax1 = fig.add_subplot(gs[0, 0])  
+ax2 = fig.add_subplot(gs[0, 1])  
+ax3 = fig.add_subplot(gs[0, 2])  
+ax4 = fig.add_subplot(gs[1, :2]) 
+ax5 = fig.add_subplot(gs[1, 2])  
+ax6 = fig.add_subplot(gs[2, :])  
+ax7 = fig.add_subplot(gs[3, 0]) 
+ax8 = fig.add_subplot(gs[3, 1:]) 
 
-# Размещение графиков
-ax1 = axes[0, 0]  # Верхний левый
-ax2 = axes[0, 1]  # Верхний средний левый
-ax3 = axes[0, 2]  # Верхний средний правый
-ax4 = axes[0, 3]  # Верхний правый
-ax5 = axes[1, 0]  # Нижний левый
-ax6 = axes[1, 1]  # Нижний средний левый
-ax7 = axes[1, 2]  # Нижний средний правый
-ax8 = axes[1, 3]  # Нижний правый
-
-# Формат графиков
-ax1.plot(x1, y1_1, label="$x^{1/2}$")
-ax1.plot(x1, y1_2, label="$x^{1/3}$")
-ax1.set_title("Степенные")
+ax1.plot(x1, y1, label="$x^{1/2}$")
+ax1.set_title("Степенная ф")
 ax1.legend()
 
-ax2.plot(x2, y2_1, label="arcsin(x/2)")
-ax2.plot(x2, y2_2, label="arctan(x)")
-ax2.set_title("Тригонометрические")
+ax2.plot(x2, y2, label="$x^{1/3}$", marker='o', s=5)
+ax2.set_title("Степенная ф")
 ax2.legend()
 
-ax3.plot(x3, y3_1, label="x*sin(x)")
-ax3.plot(x3, y3_2, label="x*cos(x)")
-ax3.set_title("Комбинированные")
+ax3.plot(x3, y3, width=0.1, alpha=0.5, linestyle='--', label="arcsin(x/2)") 
+ax3.set_title("Тригонометрические ф")
 ax3.legend()
 
-ax4.plot(x4, y4_1, label="|x-2|")
-ax4.plot(x4, y4_2, label="|x^2-4|")
-ax4.set_title("Модульные")
+ax3.plot(x3, y3, color='red', linewidth=2, label="x*sin(x)") 
+ax3.step(x3, y3, color='green', label="x*cos(x)") 
+ax3.set_title("Комбинированные ф")
+ax3.legend()
+
+ax4.plot(x4, y4, marker='x', label="|x-2|") 
+ax4.fill_between(x4, y4, color='skyblue', alpha=0.4, label="|x^2-4|") 
+ax4.set_title("Модульные ф")
 ax4.legend()
 
-ax5.plot(x5, y5, label="x^2")
+ax5.plot(x5, y5, linestyle='-.', label="Парабола") 
 ax5.set_title("Парабола")
 ax5.legend()
 
-ax6.plot(x6, y6_1, label="exp(x)")
-ax6.plot(x6, y6_2, label="exp(-x)")
+ax6.semilogy(x6, y6_1, label="exp(x)") 
+ax6.semilogy(x6, y6_2, label="exp(-x)")
 ax6.set_title("Экспоненты")
 ax6.legend()
 
-ax7.plot(x7, y7_1, label="log(x)")
-ax7.plot(x7, y7_2, label="log10(x)")
-ax7.set_title("Логарифмы")
+ax7.plot(x7, y7_1, marker='+', label="log(x)") 
+ax7.set_title("Натуральный логарифм")
 ax7.legend()
 
 ax8.plot(x8, y8_1, label="sinh(x)")
 ax8.plot(x8, y8_2, label="cosh(x)")
-ax8.set_title("Гиперболические")
+ax8.set_title("Гиперболические ф")
 ax8.legend()
 
-# Общее форматирование
 plt.tight_layout()
 plt.show()
