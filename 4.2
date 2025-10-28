@@ -1,0 +1,98 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
+
+# 1. Степенные функции
+x1 = np.linspace(0, 8, 100)
+y1_1 = x1**(1/2)
+y1_2 = x1**(1/3)
+
+# 2. Обратные тригонометрические функции
+x2 = np.linspace(-2, 2, 100)
+y2_1 = np.arcsin(x2/2)
+y2_2 = np.arctan(x2)
+
+# 3. Комбинированные функции
+x3 = np.linspace(-10, 10, 100)
+y3_1 = x3 * np.sin(x3)
+y3_2 = x3 * np.cos(x3)
+
+# 4. Модульные функции
+x4 = np.linspace(-3, 5, 100)
+y4_1 = np.abs(x4 - 2)
+y4_2 = np.abs(x4**2 - 4)
+
+# 5. Еще одна функция (для разнообразия) - Парабола
+x5 = np.linspace(-5, 5, 100)
+y5 = x5**2
+
+# 6. Экспоненциальные функции
+x6 = np.linspace(-3, 3, 100)
+y6_1 = np.exp(x6)
+y6_2 = np.exp(-x6)
+
+# 7. Логарифмические функции
+x7 = np.linspace(0.1, 5, 100) # Избегаем log(0)
+y7_1 = np.log(x7)
+y7_2 = np.log10(x7)
+
+# 8. Гиперболические функции
+x8 = np.linspace(-3, 3, 100)
+y8_1 = np.sinh(x8)
+y8_2 = np.cosh(x8)
+
+# Создание рисунка и сетки подграфиков с разными размерами
+fig = plt.figure(figsize=(15, 10)) # Увеличим размер фигуры
+gs = GridSpec(4, 3, figure=fig)
+
+# Добавление подграфиков в разные позиции и с разными размерами
+ax1 = fig.add_subplot(gs[0, 0])  # Верхний левый угол
+ax2 = fig.add_subplot(gs[0, 1])  # Верхний центр
+ax3 = fig.add_subplot(gs[0, 2])  # Верхний правый угол
+ax4 = fig.add_subplot(gs[1, :2]) # Вторая строка, занимает два столбца
+ax5 = fig.add_subplot(gs[1, 2])  # Вторая строка, третий столбец
+ax6 = fig.add_subplot(gs[2, :])  # Третья строка, занимает все столбцы
+ax7 = fig.add_subplot(gs[3, 0])  # Нижний левый угол
+ax8 = fig.add_subplot(gs[3, 1:]) # Нижняя строка, занимает два столбца
+
+# Формат графиков (разные типы)
+ax1.plot(x1, y1_1, label="$x^{1/2}$")
+ax1.scatter(x1, y1_2, label="$x^{1/3}$", marker='o', s=5) # Scatter plot
+ax1.set_title("Степенные")
+ax1.legend()
+
+ax2.plot(x2, y2_1, linestyle='--', label="arcsin(x/2)") # Пунктирная линия
+ax2.bar(x2, y2_2, width=0.1, alpha=0.5, label="arctan(x)") # Столбчатая диаграмма (bar)
+ax2.set_title("Тригонометрия")
+ax2.legend()
+
+ax3.plot(x3, y3_1, color='red', linewidth=2, label="x*sin(x)") # Красная линия
+ax3.step(x3, y3_2, color='green', label="x*cos(x)") # Step plot
+ax3.set_title("Комбинации")
+ax3.legend()
+
+ax4.plot(x4, y4_1, marker='x', label="|x-2|") # Маркеры 'x'
+ax4.fill_between(x4, y4_2, color='skyblue', alpha=0.4, label="|x^2-4|") # Заливка
+ax4.set_title("Модули")
+ax4.legend()
+
+ax5.plot(x5, y5, linestyle='-.', label="Парабола") # штрихпунктирная линия
+ax5.set_title("Парабола")
+ax5.legend()
+
+ax6.semilogy(x6, y6_1, label="exp(x)") # Логарифмический масштаб по y
+ax6.semilogy(x6, y6_2, label="exp(-x)")
+ax6.set_title("Экспоненты")
+ax6.legend()
+
+ax7.plot(x7, y7_1, marker='+', label="log(x)") # Маркеры +
+ax7.set_title("Натуральный логарифм")
+ax7.legend()
+
+ax8.plot(x8, y8_1, label="sinh(x)")
+ax8.plot(x8, y8_2, label="cosh(x)")
+ax8.set_title("Гиперболические")
+ax8.legend()
+
+plt.tight_layout()  # Автоматическая регулировка параметров подграфиков
+plt.show()
