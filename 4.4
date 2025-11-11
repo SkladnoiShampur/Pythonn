@@ -46,6 +46,92 @@ ax7.set_title("Модульная функция")
 ax7.legend()
 
 # 8. Модульная функция |x^2 - 4| (исправлен label)
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker # Импортируем mticker для форматирования осей
+from matplotlib.gridspec import GridSpec
+
+# Создаем фигуру и сетку для сабплотов
+fig = plt.figure(figsize=(18, 12)) # Увеличим размер для лучшей читаемости
+gs = GridSpec(6, 5, figure=fig)
+
+# 1: Степенная функция x^(1/2)
+x1 = np.linspace(0, 8, 100)
+y1 = x1**(1/2)
+
+# 2: Степенная функция x^(1/3)
+x2 = np.linspace(0, 8, 100)
+y2 = x2**(1/3)
+
+# 3: Обратная тригонометрическая функция arcsin(x/2)
+x3 = np.linspace(-2, 2, 100)
+y3 = np.arcsin(x3/2)
+
+# 4: Обратная тригонометрическая функция arctan(x)
+x4 = np.linspace(-2, 2, 100)
+y4 = np.arctan(x4)
+
+# 5: Тригонометрическая функция x*sin(x)
+x5 = np.linspace(-10, 10, 1000) # Увеличим число точек для гладкости
+y5 = x5 * np.sin(x5)
+
+# 6: Тригонометрическая функция x*cos(x)
+x6 = np.linspace(-10, 10, 1000) # Увеличим число точек для гладкости
+y6 = x6 * np.cos(x6)
+
+# 7: Модульная функция |x-2|
+x7 = np.linspace(-3, 5, 100)
+y7 = np.abs(x7 - 2)
+
+# 8: Модульная функция |x^2 - 4| (исправлен label)
+x8 = np.linspace(-3, 5, 100)
+y8 = np.abs(x8**2 - 4)
+
+# Определяем расположение сабплотов на сетке
+ax1 = fig.add_subplot(gs[0, :4])
+ax1.grid(True)
+ax2 = fig.add_subplot(gs[0, 4:])
+ax2.grid(True)
+ax3 = fig.add_subplot(gs[1:6, 0])
+ax3.grid(True)
+ax4 = fig.add_subplot(gs[1:6, 1])
+ax4.grid(True)
+ax5 = fig.add_subplot(gs[1, 2:])
+ax5.grid(True)
+ax6 = fig.add_subplot(gs[2:5, 2])
+ax6.grid(True)
+ax7 = fig.add_subplot(gs[2:5, 3:])
+ax7.grid(True)
+ax8 = fig.add_subplot(gs[5, 3:])
+ax8.grid(True) # Добавим сетку для ax8
+
+# --- Построение и настройка графиков ---
+
+# 1. Степенная ф x^(1/2)
+ax1.plot(x1, y1, label="$x^{1/2}$")
+ax1.set_title("Степенная функция")
+ax1.legend()
+
+# 2. Степенная ф x^(1/3)
+ax2.plot(x2, y2, label="$x^{1/3}$")
+ax2.set_title("Степенная функция")
+ax2.legend()
+
+# 3. Обратная тригонометрическая ф arcsin(x/2)
+ax3.plot(x3, y3, linestyle='--', label="arcsin(x/2)")
+ax3.set_title("Обратная тригонометрическая функция")
+ax3.legend()
+# Настройка Y-оси для радианов
+ax3.set_yticks([-np.pi/2, 0, np.pi/2])
+ax3.set_yticklabels(["$-\\pi/2$", "0", "$\\pi/2$"])
+ax3.set_ylim(-np.pi/2 - 0.1, np.pi/2 + 0.1) # Немного расширим лимиты для красоты
+
+# 4. Обратная тригонометрическая ф arctan(x)
+ax4.plot(x4, y4, linestyle='-', label="arctan(x)")
+ax4.set_title("Обратная тригонометрическая функция")
+ax4.legend()
+# Настройка Y-оси для радианов
+ax4.set_yticks([-np.pi/2, -np.pi/4, 0, np.pi/4, np.pi/2]) # Добавим больше меток
 ax8.plot(x8, y8, marker='+', label="$|x^2 - 4|$") # Исправлен label
 ax8.set_title("Модульная функция")
 ax8.legend()
