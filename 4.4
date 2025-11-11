@@ -1,0 +1,55 @@
+ax4.set_yticklabels(["$-\\pi/2$", "$-\\pi/4$", "0", "$\\pi/4$", "$\\pi/2$"])
+ax4.set_ylim(np.min(y4) - 0.1, np.max(y4) + 0.1) # Автоматически по данным, но с небольшим отступом
+
+
+# 5. Тригонометрическая ф x*sin(x)
+ax5.plot(x5, y5, color='red', linewidth=2, label="x*sin(x)")
+ax5.set_title("Тригонометрическая функция")
+ax5.legend()
+# Настройка X-оси для радианов
+ax5.xaxis.set_major_locator(mticker.MultipleLocator(np.pi)) # Основные метки через pi
+ax5.xaxis.set_minor_locator(mticker.MultipleLocator(np.pi/2)) # Дополнительные метки через pi/2
+ax5.xaxis.set_major_formatter(mticker.FormatStrFormatter('%g$\\pi$')) # Формат для основных меток
+# Умный форматтер для x-оси
+def format_pi_tick(value, tick_number):
+    N = int(value / np.pi)
+    if N == 0:
+        return "0"
+    elif N == 1:
+        return "$\\pi$"
+    elif N == -1:
+        return "$-\\pi$"
+    elif value % np.pi == 0:
+        return f"${N}\\pi$"
+    elif value % (np.pi/2) == 0:
+        # Например, 1.5*pi = 3*pi/2
+        num_half_pi = int(value / (np.pi/2))
+        return f"${num_half_pi}\\pi/2$"
+    return "" # Для остальных не выводим метку, чтобы не перегружать
+
+ax5.xaxis.set_major_formatter(mticker.FuncFormatter(format_pi_tick))
+
+
+# 6. Тригонометрическая ф x*cos(x)
+ax6.plot(x6, y6, color='green', label="x*cos(x)")
+ax6.set_title("Тригонометрическая функция")
+ax6.legend()
+# Настройка X-оси для радианов (используем тот же форматтер)
+ax6.xaxis.set_major_locator(mticker.MultipleLocator(np.pi))
+ax6.xaxis.set_minor_locator(mticker.MultipleLocator(np.pi/2))
+ax6.xaxis.set_major_formatter(mticker.FuncFormatter(format_pi_tick))
+
+
+# 7. Модульная функция |x-2|
+ax7.plot(x7, y7, marker='.', label="|x-2|")
+ax7.set_title("Модульная функция")
+ax7.legend()
+
+# 8. Модульная функция |x^2 - 4| (исправлен label)
+ax8.plot(x8, y8, marker='+', label="$|x^2 - 4|$") # Исправлен label
+ax8.set_title("Модульная функция")
+ax8.legend()
+
+
+plt.tight_layout() # Автоматически настраивает параметры подокна, чтобы они аккуратно заполняли область рисунка.
+plt.show()
