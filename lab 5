@@ -1,0 +1,398 @@
+import tkinter as tk
+from tkinter import ttk, messagebox, filedialog, simpledialog
+import json
+from datetime import datetime
+from typing import List, Dict
+
+
+class Task:
+    """Класс для представления задачи"""
+    
+    def __init__(self, text: str, completed: bool = False, created_at: str = None):
+        self.text = text
+        self.completed = completed
+        self.created_at = created_at or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    def to_dict(self) -> Dict:
+        """Преобразование задачи в словарь для сохранения"""
+        return {
+            'text': self.text,
+            'completed': self.completed,
+            'created_at': self.created_at
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict) -> 'Task':
+        """Создание задачи из словаря"""
+        return cls(
+            text=data.get('text', ''),
+            completed=data.get('completed', False),
+            created_at=data.get('created_at', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        )
+
+
+class TaskManagerApp:
+    """Главное приложение менеджера задач"""
+    
+    def __init__(self, root: tk.Tk):
+        self.root = root
+        self.root.title("Менеджер задач")
+        self.root.geometry("600x500")
+        
+        self.tasks: List[Task] = []
+        self.filter_completed: bool = None  # None - все, True - выполненные, False - невыполненные
+        self.sort_by_created: bool = True
+        
+        self.setup_ui()
+        self.load_tasks()
+    
+    def setup_ui(self):
+        """Настройка пользовательского интерфейса"""
+        # Создание меню
+        self.create_menu()
+        
+        # Основной фрейм
+        main_frame = ttk.Frame(self.root, padding="10")
+        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+        main_frame.columnconfigure(0, weight=1)
+        main_frame.rowconfigure(1, weight=1)
+        
+        # Заголовок
+        title_label = ttk.Label(main_frame, text="Список задач", font=("Arial", 16, "bold"))
+        title_label.grid(row=0, column=0, pady=(0, 10))
+        
+        # Фрейм для списка задач с прокруткой
+        list_frame = ttk.Frame(main_frame)
+        list_frame.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        list_frame.columnconfigure(0, weight=1)
+        list_frame.rowconfigure(0, weight=1)
+        
+        # Создание Treeview для списка задач
+        columns = ('completed', 'task')
+        self.tree = ttk.Treeview(list_frame, columns=columns, show='tree headings', height=15)
+        self.tree.heading('#0', text='', anchor=tk.W)
+        self.tree.heading('completed', text='Статус', anchor=tk.CENTER)
+        self.tree.heading('task', text='Задача', anchor=tk.W)
+        
+        self.tree.column('#0', width=30, stretch=False)
+        self.tree.column('completed', width=100, anchor=tk.CENTER, stretch=False)
+        self.tree.column('task', width=450, anchor=tk.W, stretch=True)
+        
+        # Вертикальная прокрутка
+        scrollbar_y = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar_y.set)
+        
+        self.tree.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        scrollbar_y.grid(row=0, column=1, sticky=(tk.N, tk.S))
+        
+        # Привязка событий
+        self.tree.bind('<Double-1>', self.on_task_double_click)
+        self.tree.bind('<Button-1>', self.on_task_click)
+        
+        # Статусная строка
+        self.status_label = ttk.Label(main_frame, text="Всего задач: 0", relief=tk.SUNKEN)
+        self.status_label.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(10, 0))
+    
+    def create_menu(self):
+        """Создание меню приложения"""
+        menubar = tk.Menu(self.root)
+        self.root.config(menu=menubar)
+        
+        # Меню "Задачи"
+        tasks_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Задачи", menu=tasks_menu)
+        tasks_menu.add_command(label="Добавить задачу", command=self.add_task, accelerator="Ctrl+N")
+        tasks_menu.add_command(label="Редактировать задачу", command=self.edit_task, accelerator="Ctrl+E")
+        tasks_menu.add_separator()
+        tasks_menu.add_command(label="Удалить задачу", command=self.delete_task, accelerator="Ctrl+D")
+        tasks_menu.add_command(label="Очистить выполненные", command=self.clear_completed)
+        
+        # Меню "Вид"
+        view_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Вид", menu=view_menu)
+        view_menu.add_command(label="Показать все", command=lambda: self.filter_tasks(None))
+        view_menu.add_command(label="Только выполненные", command=lambda: self.filter_tasks(True))
+        view_menu.add_command(label="Только невыполненные", command=lambda: self.filter_tasks(False))
+        view_menu.add_separator()
+        view_menu.add_command(label="Сортировать по дате создания", command=self.toggle_sort)
+        
+        # Меню "Экспорт"
+        export_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Экспорт", menu=export_menu)
+        export_menu.add_command(label="Сохранить в файл...", command=self.export_tasks)
+        
+        # Привязка горячих клавиш
+        self.root.bind('<Control-n>', lambda e: self.add_task())
+        self.root.bind('<Control-N>', lambda e: self.add_task())
+        self.root.bind('<Control-e>', lambda e: self.edit_task())
+        self.root.bind('<Control-E>', lambda e: self.edit_task())
+        self.root.bind('<Control-d>', lambda e: self.delete_task())
+        self.root.bind('<Control-D>', lambda e: self.delete_task())
+    
+    def add_task(self):
+        """Добавление новой задачи"""
+        dialog = TaskDialog(self.root, "Добавить задачу")
+        self.root.wait_window(dialog.dialog)
+        if dialog.result:
+            new_task = Task(dialog.result)
+            self.tasks.append(new_task)
+            self.refresh_task_list()
+            self.save_tasks()
+    
+    def edit_task(self):
+        """Редактирование выбранной задачи"""
+        selected = self.tree.selection()
+        if not selected:
+            messagebox.showwarning("Предупреждение", "Выберите задачу для редактирования")
+            return
+        
+        item = selected[0]
+        task_index = int(self.tree.item(item, 'tags')[0])
+        task = self.tasks[task_index]
+        
+        dialog = TaskDialog(self.root, "Редактировать задачу", initial_text=task.text)
+        self.root.wait_window(dialog.dialog)
+        if dialog.result:
+            task.text = dialog.result
+            self.refresh_task_list()
+            self.save_tasks()
+    
+    def delete_task(self):
+        """Удаление задачи с подтверждением"""
+        selected = self.tree.selection()
+        if not selected:
+            messagebox.showwarning("Предупреждение", "Выберите задачу для удаления")
+            return
+        
+        item = selected[0]
+        task_index = int(self.tree.item(item, 'tags')[0])
+        task = self.tasks[task_index]
+        
+        # Подтверждение удаления
+        if messagebox.askyesno("Подтверждение", f"Вы уверены, что хотите удалить задачу?\n\n\"{task.text}\""):
+            self.tasks.pop(task_index)
+            self.refresh_task_list()
+            self.save_tasks()
+    
+    def clear_completed(self):
+        """Очистка всех выполненных задач"""
+        completed_count = sum(1 for task in self.tasks if task.completed)
+        if completed_count == 0:
+            messagebox.showinfo("Информация", "Нет выполненных задач для удаления")
+            return
+        
+        # Подтверждение удаления
+        if messagebox.askyesno("Подтверждение", 
+                              f"Вы уверены, что хотите удалить {completed_count} выполненную(ых) задачу(и)?"):
+            self.tasks = [task for task in self.tasks if not task.completed]
+            self.refresh_task_list()
+            self.save_tasks()
+    
+    def filter_tasks(self, filter_type: bool = None):
+        """Фильтрация задач по статусу выполнения"""
+        self.filter_completed = filter_type
+        self.refresh_task_list()
+    
+    def toggle_sort(self):
+        """Переключение сортировки"""
+        self.sort_by_created = not self.sort_by_created
+        self.refresh_task_list()
+    
+    def on_task_click(self, event):
+        """Обработка клика по задаче (переключение чекбокса только при клике на колонку статуса)"""
+        item = self.tree.identify_row(event.y)
+        if not item:
+            return
+        
+        region = self.tree.identify_region(event.x, event.y)
+        if region == "cell":
+            column = self.tree.identify_column(event.x)
+            # Колонка "#1" - это колонка "completed" (статус)
+            # Индексация: #0 - дерево (скрыто), #1 - completed, #2 - task
+            if column == "#1":
+                try:
+                    task_index = int(self.tree.item(item, 'tags')[0])
+                    if 0 <= task_index < len(self.tasks):
+                        task = self.tasks[task_index]
+                        task.completed = not task.completed
+                        self.refresh_task_list()
+                        self.save_tasks()
+                except (ValueError, IndexError):
+                    pass
+    
+    def on_task_double_click(self, event):
+        """Обработка двойного клика по задаче (редактирование, только если не клик по статусу)"""
+        # Проверяем, что клик не по колонке статуса
+        region = self.tree.identify_region(event.x, event.y)
+        if region == "cell":
+            column = self.tree.identify_column(event.x)
+            # Если клик по колонке статуса, не редактируем
+            if column == "#1":
+                return
+        
+        self.edit_task()
+    
+    def refresh_task_list(self):
+        """Обновление списка задач"""
+        # Очистка списка
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        
+        # Создаём список пар (индекс, задача) для правильной индексации
+        indexed_tasks = [(i, task) for i, task in enumerate(self.tasks)]
+        
+        # Фильтрация задач
+        filtered_tasks = indexed_tasks
+        if self.filter_completed is not None:
+            filtered_tasks = [(i, task) for i, task in indexed_tasks 
+                            if task.completed == self.filter_completed]
+        
+        # Сортировка
+        if self.sort_by_created:
+            filtered_tasks = sorted(filtered_tasks, key=lambda x: x[1].created_at, reverse=True)
+        
+        # Добавление задач в список
+        for real_index, task in filtered_tasks:
+            status = "☑" if task.completed else "☐"
+            # Обрезаем длинный текст для отображения
+            display_text = task.text[:100] + "..." if len(task.text) > 100 else task.text
+            self.tree.insert('', 'end', 
+                           values=(status, display_text),
+                           tags=(str(real_index),))
+        
+        # Обновление статусной строки
+        total = len(self.tasks)
+        completed = sum(1 for task in self.tasks if task.completed)
+        filter_text = ""
+        if self.filter_completed is True:
+            filter_text = " (фильтр: выполненные)"
+        elif self.filter_completed is False:
+            filter_text = " (фильтр: невыполненные)"
+        self.status_label.config(text=f"Всего задач: {total} | Выполнено: {completed}{filter_text}")
+    
+    def export_tasks(self):
+        """Экспорт задач в файл"""
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON файлы", "*.json"), ("Текстовые файлы", "*.txt"), ("Все файлы", "*.*")]
+        )
+        
+        if not filename:
+            return
+        
+        try:
+            if filename.endswith('.json'):
+                # Экспорт в JSON
+                data = {
+                    'tasks': [task.to_dict() for task in self.tasks],
+                    'export_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+                with open(filename, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+            else:
+                # Экспорт в текстовый формат
+                with open(filename, 'w', encoding='utf-8') as f:
+                    f.write("Список задач\n")
+                    f.write("=" * 50 + "\n\n")
+                    for i, task in enumerate(self.tasks, 1):
+                        status = "[☑]" if task.completed else "[☐]"
+                        f.write(f"{i}. {status} {task.text}\n")
+                        f.write(f"   Создано: {task.created_at}\n\n")
+            
+            messagebox.showinfo("Успех", f"Задачи успешно экспортированы в файл:\n{filename}")
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Не удалось экспортировать задачи:\n{str(e)}")
+    
+    def save_tasks(self):
+        """Сохранение задач в локальный файл"""
+        try:
+            data = [task.to_dict() for task in self.tasks]
+            with open('tasks.json', 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Ошибка сохранения задач: {e}")
+    
+    def load_tasks(self):
+        """Загрузка задач из локального файла"""
+        try:
+            with open('tasks.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                self.tasks = [Task.from_dict(item) for item in data]
+                self.refresh_task_list()
+        except FileNotFoundError:
+            # Файл не существует, начинаем с пустого списка
+            pass
+        except Exception as e:
+            print(f"Ошибка загрузки задач: {e}")
+
+
+class TaskDialog:
+    """Диалоговое окно для ввода/редактирования задачи"""
+    
+    def __init__(self, parent: tk.Tk, title: str, initial_text: str = ""):
+        self.result = None
+        
+        # Создание диалогового окна
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title(title)
+        self.dialog.geometry("400x150")
+        self.dialog.resizable(False, False)
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
+        
+        # Центрирование окна
+        self.dialog.update_idletasks()
+        x = (self.dialog.winfo_screenwidth() // 2) - (self.dialog.winfo_width() // 2)
+        y = (self.dialog.winfo_screenheight() // 2) - (self.dialog.winfo_height() // 2)
+        self.dialog.geometry(f"+{x}+{y}")
+        
+        # Основной фрейм
+        main_frame = ttk.Frame(self.dialog, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Метка
+        ttk.Label(main_frame, text="Введите текст задачи:").pack(anchor=tk.W, pady=(0, 5))
+        
+        # Поле ввода
+        self.text_entry = tk.Text(main_frame, height=3, wrap=tk.WORD, font=("Arial", 10))
+        self.text_entry.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        self.text_entry.insert('1.0', initial_text)
+        self.text_entry.focus()
+        
+        # Кнопки
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X)
+        
+        ttk.Button(button_frame, text="Отмена", command=self.cancel).pack(side=tk.RIGHT, padx=(5, 0))
+        ttk.Button(button_frame, text="ОК", command=self.ok).pack(side=tk.RIGHT)
+        
+        # Привязка Enter и Escape
+        self.dialog.bind('<Return>', lambda e: self.ok())
+        self.dialog.bind('<Escape>', lambda e: self.cancel())
+        # Привязка Ctrl+Enter для подтверждения из текстового поля
+        self.text_entry.bind('<Control-Return>', lambda e: self.ok())
+    
+    def ok(self):
+        """Подтверждение ввода"""
+        text = self.text_entry.get('1.0', tk.END).strip()
+        if text:
+            self.result = text
+        self.dialog.destroy()
+    
+    def cancel(self):
+        """Отмена ввода"""
+        self.dialog.destroy()
+
+
+def main():
+    """Главная функция приложения"""
+    root = tk.Tk()
+    app = TaskManagerApp(root)
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
