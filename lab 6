@@ -1,0 +1,163 @@
+"""
+Анализ продаж автомобилей - Вариант 4
+Выполнение всех заданий по анализу данных car_sales.csv
+"""
+
+import sys
+import subprocess
+
+# Функция для установки библиотек
+def install_package(package):
+    """Установка пакета через pip"""
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package, "-q"])
+
+# Проверка и установка необходимых библиотек
+try:
+    import pandas as pd
+except ImportError:
+    print("Библиотека pandas не найдена. Устанавливаю...")
+    install_package("pandas")
+    import pandas as pd
+
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    print("Библиотека matplotlib не найдена. Устанавливаю...")
+    install_package("matplotlib")
+    import matplotlib.pyplot as plt
+
+try:
+    import numpy as np
+except ImportError:
+    print("Библиотека numpy не найдена. Устанавливаю...")
+    install_package("numpy")
+    import numpy as np
+
+# Настройка для корректного отображения русского текста
+plt.rcParams['font.family'] = 'DejaVu Sans'
+plt.rcParams['axes.unicode_minus'] = False
+
+print("=" * 60)
+print("Вариант 4: Анализ продаж автомобилей")
+print("=" * 60)
+print()
+
+# Задание 1: Загрузите данные из файла car_sales.csv в DataFrame
+print("Задание 1: Загрузка данных из файла car_sales.csv")
+print("-" * 60)
+try:
+    df = pd.read_csv('car_sales.csv', encoding='utf-8')
+    print("✓ Данные успешно загружены!")
+    print()
+except FileNotFoundError:
+    print("⚠ Файл car_sales.csv не найден. Создаю данные...")
+    # Создаем данные на основе информации из изображения
+    data = {
+        'SaleID': [4001, 4002, 4003, 4004, 4005, 4006, 4007],
+        'ClientID': ['CL5567', 'CL3341', 'CL7789', 'CL9123', 'CL4452', 'CL6678', 'CL2234'],
+        'CarModel': ['Toyota Camry', 'BMW X5', 'Hyundai Creta', 'Kia Rio', 'Toyota RAV4', 
+                     'Mercedes E-class', 'Volkswagen Tiguan'],
+        'CarType': ['Sedan', 'SUV', 'Crossover', 'Sedan', 'SUV', 'Sedan', 'SUV'],
+        'Year': [2022, 2023, 2022, 2023, 2022, 2023, 2022],
+        'Price': [2850000, 6500000, 1850000, 1650000, 3250000, 4850000, 2750000],
+        'Discount': [50000, 150000, 25000, 30000, 100000, 75000, 120000],
+        'SaleDate': ['2023-08-01', '2023-08-02', '2023-08-05', '2023-08-10', 
+                     '2023-08-15', '2023-08-20', '2023-08-25'],
+        'DealerCity': ['Москва', 'Санкт-Петербург', 'Екатеринбург', 'Казань', 
+                       'Новосибирск', 'Москва', 'Санкт-Петербург']
+    }
+    df = pd.DataFrame(data)
+    # Сохраняем в CSV для последующего использования
+    df.to_csv('car_sales.csv', index=False, encoding='utf-8')
+    print("✓ Файл car_sales.csv создан!")
+    print()
+
+# Задание 2: Выведите основную информацию о DataFrame и первые 7 строк
+print("Задание 2: Основная информация о DataFrame и первые 7 строк")
+print("-" * 60)
+print("\nИнформация о DataFrame:")
+print(df.info())
+print("\nПервые 7 строк:")
+print(df.head(7))
+print()
+
+# Задание 3: Создайте новый DataFrame только с продажами автомобилей типа "SUV"
+print("Задание 3: DataFrame только с продажами автомобилей типа 'SUV'")
+print("-" * 60)
+df_suv = df[df['CarType'] == 'SUV'].copy()
+print(f"Количество продаж SUV: {len(df_suv)}")
+print("\nДанные:")
+print(df_suv)
+print()
+
+# Задание 4: Добавьте столбец FinalPrice, который равен Price - Discount
+print("Задание 4: Добавление столбца FinalPrice (Price - Discount)")
+print("-" * 60)
+df['FinalPrice'] = df['Price'] - df['Discount']
+print("✓ Столбец FinalPrice добавлен!")
+print("\nОбновленный DataFrame:")
+print(df[['SaleID', 'CarModel', 'Price', 'Discount', 'FinalPrice']])
+print()
+
+# Задание 5: Посчитайте общее количество проданных автомобилей по каждому городу
+print("Задание 5: Общее количество проданных автомобилей по каждому городу")
+print("-" * 60)
+sales_by_city = df.groupby('DealerCity')['SaleID'].count().reset_index()
+sales_by_city.columns = ['Город', 'Количество продаж']
+print(sales_by_city)
+print()
+
+# Задание 6: Отсортируйте результат по убыванию количества продаж
+print("Задание 6: Сортировка по убыванию количества продаж")
+print("-" * 60)
+sales_by_city_sorted = sales_by_city.sort_values('Количество продаж', ascending=False)
+print(sales_by_city_sorted)
+print()
+
+# Задание 7: Найдите среднюю цену автомобиля по каждому типу кузова
+print("Задание 7: Средняя цена автомобиля по каждому типу кузова")
+print("-" * 60)
+avg_price_by_type = df.groupby('CarType')['Price'].mean().reset_index()
+avg_price_by_type.columns = ['Тип кузова', 'Средняя цена']
+avg_price_by_type['Средняя цена'] = avg_price_by_type['Средняя цена'].round(2)
+print(avg_price_by_type)
+print()
+
+# Задание 8: Постройте столбчатую диаграмму общей выручки по типам автомобилей
+print("Задание 8: Построение столбчатой диаграммы общей выручки по типам автомобилей")
+print("-" * 60)
+revenue_by_type = df.groupby('CarType')['FinalPrice'].sum().reset_index()
+revenue_by_type.columns = ['Тип кузова', 'Общая выручка']
+
+print("Данные для диаграммы:")
+print(revenue_by_type)
+print()
+
+# Создание диаграммы
+plt.figure(figsize=(10, 6))
+bars = plt.bar(revenue_by_type['Тип кузова'], revenue_by_type['Общая выручка'], 
+               color=['#4CAF50', '#2196F3', '#FF9800'])
+plt.title('Общая выручка по типам автомобилей', fontsize=14, fontweight='bold')
+plt.xlabel('Тип кузова', fontsize=12)
+plt.ylabel('Общая выручка (руб.)', fontsize=12)
+plt.grid(axis='y', alpha=0.3)
+
+# Добавляем значения на столбцы
+for i, (bar, value) in enumerate(zip(bars, revenue_by_type['Общая выручка'])):
+    plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 50000,
+             f'{value:,.0f}'.replace(',', ' '),
+             ha='center', va='bottom', fontsize=10)
+
+# Форматирование оси Y
+ax = plt.gca()
+ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{x/1e6:.1f}M'))
+
+plt.tight_layout()
+plt.savefig('revenue_by_car_type.png', dpi=300, bbox_inches='tight')
+print("✓ Диаграмма сохранена в файл 'revenue_by_car_type.png'")
+plt.show()
+
+print()
+print("=" * 60)
+print("Все задания выполнены успешно!")
+print("=" * 60)
