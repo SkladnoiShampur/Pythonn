@@ -1,0 +1,189 @@
+"""
+Лабораторная работа №7 (обработка данных студентов)
+"""
+
+import sys
+import pandas as pd
+import subprocess
+import os
+from datetime import datetime
+from io import StringIO
+
+# CSV ФАЙЛЫ
+students_data = """student_id,name,specialization,enrollment_date,hours_per_week
+101,"Петров, Алексей",Data Science,2023-01-15,12
+102,"Иванова, Мария",Web Development,2023-02-10,8
+103,"Сидоров, Дмитрий",Data Science,2023-01-22,15
+104,"Козлова, Анна",UX/UI Design,2023-03-05,10
+105,"Волков, Иван",Cybersecurity,2023-02-18,14
+106,"Никитина, Елена",Web Development,2023-01-30,9
+107,"Борисов, Сергей",Data Science,2023-03-12,11
+108,"Захарова, Ольга",UX/UI Design,2023-02-28,7
+109,"Григорьев, Андрей",Cybersecurity,2023-03-20,13
+110,"Павлова, Наталья",Web Development,2023-01-25,10"""
+
+assignments_data = """assignment_id,student_id,assignment_type,score,max_score,completion_date
+1001,101,Quiz,18,20,2023-02-10
+1002,101,Project,85,100,2023-03-15
+1003,102,Quiz,15,20,2023-03-05
+1004,103,Exam,42,50,2023-04-20
+1005,103,Project,92,100,2023-05-10
+1006,104,Quiz,19,20,2023-04-02
+1007,105,Project,78,100,2023-05-18
+1008,106,Exam,45,50,2023-06-05
+1009,107,Quiz,17,20,2023-04-28
+1010,108,Project,,100,"""
+
+with open('students.csv', 'w', encoding='utf-8') as f:
+    f.write(students_data)
+with open('assignments.csv', 'w', encoding='utf-8') as f:
+    f.write(assignments_data)
+print("CSV файлы созданы\n")
+
+#1
+print("1. Загрузка и объединение данных")
+
+df_students = pd.read_csv('students.csv')
+df_assignments = pd.read_csv('assignments.csv', na_values=['', 'None'])
+
+# Объединение (все студенты, даже без заданий)
+df_full = pd.merge(df_students, df_assignments, on='student_id', how='left')
+
+print(f"Загружено студентов: {len(df_students)}")
+print(f"Загружено заданий: {len(df_assignments)}")
+print(f"Объединенный DataFrame: {len(df_full)} строк")
+print(f"\nПервые строки объединенного DataFrame:")
+
+print("\n")
+print(df_full.head())
+##print(df_full.to_string())
+
+#2
+print("\n")
+print("2. Обработка строковых данных")
+
+# Разделение колонки name на last_name и first_name
+name_parts = df_full['name'].str.split(', ', expand=True)
+df_full['last_name'] = name_parts[0]
+df_full['first_name'] = name_parts[1]
+# Удаление исходной колонки name
+df_full = df_full.drop('name', axis=1)
+
+# Перемещение колонок last_name и first_name на второе и третье место
+df_full = df_full[['student_id', 'last_name', 'first_name'] + [col for col in df_full.columns if col not in ['student_id', 'last_name', 'first_name']]]
+print("Колонка 'name' разделена на 'last_name' и 'first_name'")
+
+print(f"\nКолонки после обработки: {list(df_full.columns)}")
+
+print(df_full.head())
+
+#3
+print("\n")
+print("3. Работа с датами и вычисления")
+
+# Преобразование дат в datetime
+df_full['enrollment_date'] = pd.to_datetime(df_full['enrollment_date'])
+df_full['completion_date'] = pd.to_datetime(df_full['completion_date'], errors='coerce')
+
+# Вычисление дней от даты зачисления до даты сдачи
+df_full['days_after_enrollment'] = (
+    df_full['completion_date'] - df_full['enrollment_date']
+).dt.days
+
+print(f"\nПримеры вычисленных дней:")
+print(df_full[['student_id', 'enrollment_date', 'completion_date', 'days_after_enrollment']].head())
+
+#4
+print("\n", "\n")
+print("4. Создание новых признаков")
+
+# Функция для вычисления процента выполнения
+def calculate_completion_percent(row):
+    """Вычисляет процент выполнения задания"""
+    if pd.isna(row['score']) or pd.isna(row['max_score']):
+        return None
+    return (row['score'] / row['max_score']) * 100
+
+df_full['completion_percent'] = df_full.apply(calculate_completion_percent, axis=1)
+
+# Создание категориальной колонки performance
+def categorize_performance(percent):
+    """Категоризирует производительность по проценту выполнения"""
+    if pd.isna(percent):
+        return None
+    if percent >= 90:
+        return "Отлично"
+    elif percent >= 75:
+        return "Хорошо"
+    elif percent >= 60:
+        return "Удовлетворительно"
+    else:
+        return "Неудовлетворительно"
+
+df_full['performance'] = df_full['completion_percent'].apply(categorize_performance)
+
+print("Созданы колонки 'completion_percent' и 'performance'")
+print(f"\nРаспределение по категориям производительности:")
+print(df_full['performance'].value_counts())
+
+print("\n")
+print(df_full.head())
+
+#5
+print("\n")
+print("5. Анализ по специализациям")
+
+# Группировка по специализации и типу задания
+analysis_by_spec = df_full.groupby(['specialization', 'assignment_type']).agg({
+    'completion_percent': 'mean',
+    'assignment_id': 'count',  # Количество сданных работ
+    'days_after_enrollment': 'mean'
+}).rename(columns={
+    'completion_percent': 'Средний процент выполнения',
+    'assignment_id': 'Количество сданных работ',
+    'days_after_enrollment': 'Среднее время сдачи в днях'
+}).round(2)
+
+print("\nАнализ по специализациям и типам заданий:")
+print(analysis_by_spec)
+
+#6
+print("\n")
+print("6. Сводная статистика по студентам")
+
+student_stats = df_full.groupby('student_id').agg({
+    'assignment_id': lambda x: x.notna().sum(),  # Количество сданных работ
+    'completion_percent': 'mean',  # Средний процент выполнения
+    'score': 'sum',  # Общее количество баллов
+    'days_after_enrollment': 'mean'  # Среднее время сдачи в днях
+}).rename(columns={
+    'assignment_id': 'Количество сданных работ',
+    'completion_percent': 'Средний процент выполнения',
+    'score': 'Общее количество баллов',
+    'days_after_enrollment': 'Среднее время сдачи в днях'
+}).round(2)
+
+# Добавление информации о студентах
+student_info = df_full[['student_id', 'last_name', 'first_name', 'specialization']].drop_duplicates()
+student_stats = student_stats.merge(student_info, on='student_id', how='left')
+
+# Сортировка (по среднему проценту выполнения)
+student_stats = student_stats.sort_values('Средний процент выполнения', ascending=False, na_position='last')
+
+print("\nСводная статистика по студентам (по среднему проценту выполнения):")
+print(student_stats)
+
+print("\n")
+print("7. Сохранение результатов")
+
+df_full.to_csv('df_full_result.csv', index=False, encoding='utf-8-sig')
+analysis_by_spec.to_csv('analysis_by_specialization.csv', encoding='utf-8-sig')
+student_stats.to_csv('student_statistics.csv', index=False, encoding='utf-8-sig')
+
+print(" Результаты сохранены в CSV файлы:")
+print("  - df_full_result.csv")
+print("  - analysis_by_specialization.csv")
+print("  - student_statistics.csv")
+
+print("\nФинальный DataFrame (первые 5 строк):")
+print(df_full.head())
